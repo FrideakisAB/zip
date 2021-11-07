@@ -5,7 +5,7 @@
 
 #include "minunit.h"
 
-static char *ZIPNAME = NULL;
+static char ZIPNAME[L_tmpnam + 1] = {0};
 
 #define CRC32DATA1 2220805626
 #define TESTDATA1 "Some test data 1...\0"
@@ -16,7 +16,8 @@ static char *ZIPNAME = NULL;
 static int total_entries = 0;
 
 void test_setup(void) {
-  ZIPNAME = tempnam(NULL, "z-");
+  strncpy(ZIPNAME, "z-XXXXXX\0", L_tmpnam);
+  mktemp(ZIPNAME);
 
   struct zip_t *zip = zip_open(ZIPNAME, ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
 
@@ -80,7 +81,6 @@ void test_teardown(void) {
   total_entries = 0;
 
   remove(ZIPNAME);
-  free(ZIPNAME);
 }
 
 MU_TEST(test_entry_name) {
@@ -155,7 +155,7 @@ MU_TEST(test_entry_read) {
   char *bufencode1 = NULL;
   char *bufencode2 = NULL;
   char *buf = NULL;
-  ssize_t bufsize;
+  size_t bufsize;
 
   struct zip_t *zip =
       zip_stream_open(NULL, 0, ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
@@ -166,8 +166,8 @@ MU_TEST(test_entry_read) {
   mu_assert_int_eq(0, zip_entry_close(zip));
 
   ssize_t n = zip_stream_copy(zip, (void **)&bufencode1, NULL);
-  zip_stream_copy(zip, (void **)&bufencode2, &n);
-  mu_assert_int_eq(0, strncmp(bufencode1, bufencode2, (size_t)n));
+  zip_stream_copy(zip, (void **)&bufencode2, &bufsize);
+  mu_assert_int_eq(0, strncmp(bufencode1, bufencode2, bufsize));
 
   zip_stream_close(zip);
 
@@ -175,8 +175,8 @@ MU_TEST(test_entry_read) {
   mu_check(zipstream != NULL);
 
   mu_assert_int_eq(0, zip_entry_open(zipstream, "test/test-1.txt"));
-  bufsize = zip_entry_read(zipstream, (void **)&buf, NULL);
-  mu_assert_int_eq(0, strncmp(buf, TESTDATA1, (size_t)bufsize));
+  n = zip_entry_read(zipstream, (void **)&buf, NULL);
+  mu_assert_int_eq(0, strncmp(buf, TESTDATA1, (size_t)n));
   mu_assert_int_eq(0, zip_entry_close(zipstream));
 
   zip_stream_close(zipstream);

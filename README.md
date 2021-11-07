@@ -1,5 +1,5 @@
 ### A portable (OSX/Linux/Windows), simple zip library written in C
-This is done by hacking awesome [miniz](https://code.google.com/p/miniz) library and layering functions on top of the miniz v1.15 API.
+This is done by hacking awesome [miniz](https://code.google.com/p/miniz) library and layering functions on top of the miniz v2.2.0 API.
 
 [![Build](https://github.com/kuba--/zip/workflows/build/badge.svg)](https://github.com/kuba--/zip/actions?query=workflow%3Abuild)
 
@@ -158,7 +158,7 @@ zip_close(zip);
 
 ```c
 char *outbuf = NULL;
-ssize_t outbufsize = 0;
+size_t outbufsize = 0;
 
 const char *inbuf = "Append some data here...\0";
 struct zip_t *zip = zip_stream_open(NULL, 0, ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
@@ -245,7 +245,7 @@ void zip_walk(struct zip_t *zip, const char *path) {
 }
 ```
 
-* Deletes zip archive entries.
+* Delete zip archive entries.
 ```c
 char *entries[] = {"unused.txt", "remove.ini", "delete.me"};
 
@@ -256,13 +256,14 @@ struct zip_t *zip = zip_open("foo.zip", 0, 'd');
 zip_close(zip);
 ```
 
+
 # Bindings
 Compile zip library as a dynamic library.
 ```shell
 $ mkdir build
 $ cd build
 $ cmake -DBUILD_SHARED_LIBS=true ..
-$ make
+$ cmake --build .
 ```
 
 ### [Go](https://golang.org) (cgo)
@@ -458,7 +459,8 @@ new Zip {
 # Check out more cool projects which use this library:
 - [Filament](https://github.com/google/filament): Filament is a real-time physically based rendering engine for Android, iOS, Linux, macOS, Windows, and WebGL. It is designed to be as small as possible and as efficient as possible on Android.
 - [Hermes JS Engine](https://github.com/facebook/hermes): Hermes is a JavaScript engine optimized for fast start-up of React Native apps on Android. It features ahead-of-time static optimization and compact bytecode.
-- [Object-Oriented Graphics Rendering Engine](https://github.com/OGRECave/ogre): OGRE is a scene-oriented, flexible 3D engine written in C++ designed to make it easier and more intuitive for developers to produce games and demos utilising 3D hardware. 
+- [Monster Mash](https://github.com/google/monster-mash): New Sketch-Based Modeling and Animation Tool.
+- [Object-Oriented Graphics Rendering Engine](https://github.com/OGRECave/ogre): OGRE is a scene-oriented, flexible 3D engine written in C++ designed to make it easier and more intuitive for developers to produce games and demos utilising 3D hardware.
 - [Open Asset Import Library](https://github.com/assimp/assimp): A library to import and export various 3d-model-formats including scene-post-processing to generate missing render data.
 - [PowerToys](https://github.com/microsoft/PowerToys): Set of utilities for power users to tune and streamline their Windows 10 experience for greater productivity.
 - [The Ring Programming Language](https://ring-lang.github.io): Innovative and practical general-purpose multi-paradigm language.

@@ -12,21 +12,22 @@
 #ifndef ZIP_H
 #define ZIP_H
 
+#include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
 
 #ifndef ZIP_SHARED
-#  define ZIP_EXPORT
+#define ZIP_EXPORT
 #else
-#  ifdef _WIN32
-#    ifdef ZIP_BUILD_SHARED
-#      define ZIP_EXPORT __declspec(dllexport)
-#    else
-#      define ZIP_EXPORT __declspec(dllimport)
-#    endif
-#  else
-#    define ZIP_EXPORT __attribute__ ((visibility ("default")))
-#  endif
+#ifdef _WIN32
+#ifdef ZIP_BUILD_SHARED
+#define ZIP_EXPORT __declspec(dllexport)
+#else
+#define ZIP_EXPORT __declspec(dllimport)
+#endif
+#else
+#define ZIP_EXPORT __attribute__((visibility("default")))
+#endif
 #endif
 
 #ifdef __cplusplus
@@ -267,7 +268,7 @@ extern ZIP_EXPORT int zip_entry_fwrite(struct zip_t *zip, const char *filename);
  *       for large entries, please take a look at zip_entry_extract function.
  *
  * @return the return code - the number of bytes actually read on success.
- *         Otherwise a -1 on error.
+ *         Otherwise a negative number (< 0) on error.
  */
 extern ZIP_EXPORT ssize_t zip_entry_read(struct zip_t *zip, void **buf,
                                          size_t *bufsize);
@@ -286,7 +287,8 @@ extern ZIP_EXPORT ssize_t zip_entry_read(struct zip_t *zip, void **buf,
  *       For large entries, please take a look at zip_entry_extract function.
  *
  * @return the return code - the number of bytes actually read on success.
- *         Otherwise a -1 on error (e.g. bufsize is not large enough).
+ *         Otherwise a negative number (< 0) on error (e.g. bufsize is not large
+ * enough).
  */
 extern ZIP_EXPORT ssize_t zip_entry_noallocread(struct zip_t *zip, void *buf,
                                                 size_t bufsize);
@@ -313,7 +315,7 @@ extern ZIP_EXPORT int zip_entry_fread(struct zip_t *zip, const char *filename);
  */
 extern ZIP_EXPORT int
 zip_entry_extract(struct zip_t *zip,
-                  size_t (*on_extract)(void *arg, unsigned long long offset,
+                  size_t (*on_extract)(void *arg, uint64_t offset,
                                        const void *data, size_t size),
                   void *arg);
 
@@ -325,7 +327,7 @@ zip_entry_extract(struct zip_t *zip,
  * @return the return code - the number of entries on success, negative number
  *         (< 0) on error.
  */
-extern ZIP_EXPORT int zip_entries_total(struct zip_t *zip);
+extern ZIP_EXPORT ssize_t zip_entries_total(struct zip_t *zip);
 
 /**
  * Deletes zip archive entries.
@@ -335,8 +337,8 @@ extern ZIP_EXPORT int zip_entries_total(struct zip_t *zip);
  * @param len the number of entries to be deleted.
  * @return the number of deleted entries, or negative number (< 0) on error.
  */
-extern ZIP_EXPORT int zip_entries_delete(struct zip_t *zip,
-                                         char *const entries[], size_t len);
+extern ZIP_EXPORT ssize_t zip_entries_delete(struct zip_t *zip,
+                                             char *const entries[], size_t len);
 
 /**
  * Extracts a zip archive stream into directory.
@@ -381,7 +383,7 @@ extern ZIP_EXPORT struct zip_t *zip_stream_open(const char *stream, size_t size,
  * @return copy size
  */
 extern ZIP_EXPORT ssize_t zip_stream_copy(struct zip_t *zip, void **buf,
-                                          ssize_t *bufsize);
+                                          size_t *bufsize);
 
 /**
  * Close zip archive releases resources.
@@ -424,7 +426,6 @@ extern ZIP_EXPORT int zip_extract(const char *zipname, const char *dir,
                                   int (*on_extract_entry)(const char *filename,
                                                           void *arg),
                                   void *arg);
-
 /** @} */
 #ifdef __cplusplus
 }
